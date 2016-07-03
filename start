@@ -9,6 +9,7 @@ CLUSTERCHECK_PASSWORD=$(echo "$XTRABACKUP_PASSWORD" | sha256sum | awk '{print $1
 QCOMM=""
 CLUSTER_NAME=${CLUSTER_NAME:-cluster}
 MYSQL_MODE_ARGS=""
+NODE_ADDRESS=$(ip addr | awk '/inet/ && /ethwe/{sub(/\/.*$/,"",$2); print $2}')
 
 case "$1" in
 	seed)
@@ -78,6 +79,7 @@ trap shutdown TERM INT
 	--wsrep_cluster_name="$CLUSTER_NAME" \
 	--wsrep_cluster_address="gcomm://$QCOMM" \
 	--wsrep_sst_auth="xtrabackup:$XTRABACKUP_PASSWORD" \
+	--wsrep_node_address="$NODE_ADDRESS:4567" \
 	--default-time-zone="+00:00" \
 	"$@" 2>&1 &
 wait $!
