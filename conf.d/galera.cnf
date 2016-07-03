@@ -6,6 +6,10 @@ default-storage-engine=innodb
 innodb_autoinc_lock_mode=2
 innodb_flush_log_at_trx_commit=0
 bind-address=0.0.0.0
+max_connect_errors=100000
 
 wsrep_provider=/usr/lib/galera/libgalera_smm.so
-wsrep_sst_method=xtrabackup
+wsrep_sst_method=xtrabackup-v2
+
+wsrep_max_ws_rows=1024000
+wsrep_provider_options = "gcache.size=512M; evs.join_retrans_period=PT10S; evs.keepalive_period = PT3S; evs.inactive_check_period = PT10S; evs.suspect_timeout = PT30S; evs.inactive_timeout = PT1M; evs.install_timeout = PT1M;gcs.fc_limit = 256; gcs.fc_factor = 0.99; gcs.fc_master_slave = yes"

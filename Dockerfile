@@ -1,20 +1,17 @@
-FROM ubuntu:14.04
-MAINTAINER Dr. Stefan Schimanski <stefan.schimanski@gmail.com>
+FROM debian:jessie
+MAINTAINER Stéphane Cottin <stephane.cottin@vixns.com>
 
-ENV DEBIAN_FRONTEND noninteractive
-
-# setup repos
-RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe" > /etc/apt/sources.list
-RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
-RUN echo 'deb http://ftp.hosteurope.de/mirror/mariadb.org/repo/10.0/ubuntu trusty main' >> /etc/apt/sources.list
-RUN apt-get -y update
-
-# install packages
-RUN apt-get -y --no-install-recommends --no-install-suggests install host socat unzip ca-certificates wget
-RUN apt-get -y install mariadb-galera-server-10.0 galera-3 mariadb-client xtrabackup
+RUN \
+  export DEBIAN_FRONTEND=noninteractive && \
+  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 1C4CBDCDCD2EFD2A && \
+  echo "deb http://repo.percona.com/apt jessie main" > /etc/apt/sources.list.d/percona.list && \
+  apt-get update && apt-get -y dist-upgrade && \
+  apt-get install --no-install-recommends --no-install-suggests --auto-remove -y percona-xtradb-cluster-56 \
+  percona-xtrabackup percona-toolkit percona-nagios-plugins netcat socat procps host socat unzip && \
+  rm -rf /var/lib/apt/lists/*
 
 # install galera-healthcheck
-RUN wget -O /bin/galera-healthcheck 'https://github.com/vixns/galera-healthcheck/releases/download/v20160702/galera-healthcheck_linux_amd64'
+ADD https://github.com/vixns/galera-healthcheck/releases/download/v20160702/galera-healthcheck_linux_amd64 /bin/galera-healthcheck
 RUN test "$(sha256sum /bin/galera-healthcheck | awk '{print $1;}')" = "74cafdeda7a87abbf5e7667b1ad8ce3eecefddf09bdc5aa38a8e9661f15c8f31"
 RUN chmod +x /bin/galera-healthcheck
 
