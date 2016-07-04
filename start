@@ -25,7 +25,7 @@ CREATE USER 'xtrabackup'@'localhost' IDENTIFIED BY '$XTRABACKUP_PASSWORD';
 GRANT RELOAD,LOCK TABLES,REPLICATION CLIENT ON *.* TO 'xtrabackup'@'localhost';
 CREATE USER 'clustercheck'@'localhost' IDENTIFIED BY '$CLUSTERCHECK_PASSWORD';
 GRANT PROCESS ON *.* TO 'clustercheck'@'localhost';
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost';
 UPDATE mysql.user SET Password=PASSWORD('$MYSQL_ROOT_PASSWORD') WHERE User='root';
 FLUSH PRIVILEGES;
 EOF
@@ -74,13 +74,12 @@ function shutdown () {
 trap shutdown TERM INT
 
 /bin/galera-healthcheck -password="$CLUSTERCHECK_PASSWORD" -pidfile=/var/run/galera-healthcheck.pid -user clustercheck &
-/mysqld.sh --console \
+mysqld --console \
 	$MYSQL_MODE_ARGS \
 	--wsrep_cluster_name="$CLUSTER_NAME" \
 	--wsrep_cluster_address="gcomm://$QCOMM" \
 	--wsrep_sst_auth="xtrabackup:$XTRABACKUP_PASSWORD" \
-	--wsrep_node_address="$NODE_ADDRESS:4567" \
-	--wsrep_sst_receive_address="$NODE_ADDRESS:4567" \
+	--wsrep_node_address="$NODE_ADDRESS" \
 	--default-time-zone="+00:00" \
 	"$@" 2>&1 &
 wait $!
