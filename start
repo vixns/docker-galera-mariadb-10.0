@@ -52,7 +52,11 @@ EOF
 			if expr "$ADDR" : '^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$' >/dev/null; then
 				QCOMM+="$SEP$ADDR"
 			else
-				QCOMM+="$SEP$(host -t A "$ADDR" | awk '{ print $4 }' | paste -sd ",")"
+				host -t A "$ADDR" > /dev/null
+				if [ $? -eq 0 ]
+				then
+					QCOMM+="$SEP$(host -t A "$ADDR" | awk '{ print $4 }' | paste -sd ",")"
+				fi
 			fi
 			SEP=,
 		done
