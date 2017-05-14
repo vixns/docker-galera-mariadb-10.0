@@ -7,6 +7,7 @@ binlog_format=ROW
 default-storage-engine=innodb
 innodb_autoinc_lock_mode=2
 innodb_large_prefix=1
+innodb_file_format=Barracuda
 innodb_flush_log_at_trx_commit=0
 bind-address=0.0.0.0
 max_connect_errors=100000
